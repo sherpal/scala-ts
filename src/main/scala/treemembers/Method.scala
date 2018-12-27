@@ -4,14 +4,14 @@ import treemembers.annotations.JSExport
 
 import scala.meta._
 
-final class Method(
-                    val mods: List[Mod],
-                    val name: Term.Name,
-                    val tparams: List[Type.Param],
-                    val paramss: List[List[Term.Param]],
-                    val decltype: Option[Type],
-                    val body: Term
-                  ) extends WithAnnotations {
+final class Method(val defn: Defn.Def) extends WithAnnotations with WithModifierKW {
+
+  val mods: List[Mod] = defn.mods
+  val name: Term.Name = defn.name
+  val tparams: List[Type.Param] = defn.tparams
+  val paramss: List[List[Term.Param]] = defn.paramss
+  val decltype: Option[Type] = defn.decltpe
+  val body: Term = defn.body
 
   lazy val scalaName: String = name.value
 

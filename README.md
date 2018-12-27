@@ -8,6 +8,12 @@ with classes, objects, methods, and members that have
 been exported to JavaScript, and create the relevant
 declaration file for TypeScript.
 
+## Type inference
+
+We don't do that. If a return type of a method, or
+the type of a member is not explicitly specified,
+we simply set `any`.
+
 ## What is currently working
 
 When running `run filename.scala`, the program will

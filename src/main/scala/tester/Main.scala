@@ -6,7 +6,13 @@ import scala.meta._
 
 object Main {
 
+  final class NoArgumentException(msg: String) extends Exception(msg)
+
   def main(args: Array[String]): Unit = {
+
+    if (args.isEmpty) {
+      throw new NoArgumentException("No file provided.")
+    }
 
     val path = java.nio.file.Paths.get(args.head)
     val bytes = java.nio.file.Files.readAllBytes(path)

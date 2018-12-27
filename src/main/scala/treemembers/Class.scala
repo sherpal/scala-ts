@@ -4,13 +4,13 @@ import treemembers.annotations.{JSExportTopLevel, JSExportAll}
 
 import scala.meta._
 
-final class Class(
-                  val mods: List[Mod],
-                  val name: Name,
-                  val tparams: List[Type.Param],
-                  val ctor: Ctor.Primary,
-                  val template: Template
-                 ) extends WithAnnotations {
+final class Class(val defn: Defn.Class) extends WithAnnotations {
+
+  val mods: List[Mod] = defn.mods
+  val name: Name = defn.name
+  val tparams: List[Type.Param] = defn.tparams
+  val ctor: Ctor.Primary = defn.ctor
+  val template: Template = defn.templ
 
   lazy val superClasses: List[Init] = template.inits
 
@@ -36,9 +36,7 @@ final class Class(
       case _ => None
     })
 
-  lazy val jsExportedMethods: List[Method] =
-    if (jsExportAll) methods
-    else methods.filter(_.jsExported)
+  lazy val jsExportedMethods: List[Method] = thoseExported(methods)
 
   lazy val vals: List[Val] = template.children.map(TreeMember.apply)
     .flatMap({
@@ -46,9 +44,15 @@ final class Class(
       case _ => None
     })
 
-  lazy val jsExportedVals: List[Val] =
-    if (jsExportAll) vals
-    else vals.filter(_.jsExported)
+  lazy val jsExportedVals: List[Val] = thoseExported(vals)
+
+  lazy val vars: List[Var] = template.children.map(TreeMember.apply)
+    .flatMap({
+      case v: Var => Some(v)
+      case _ => None
+    })
+
+  lazy val jsExportedVars: List[Var] = thoseExported(vars)
 
   def classOrInterface: String = if (isJSTopLevelExported) "class" else "interface"
 
@@ -60,9 +64,14 @@ final class Class(
        |
        |${jsExportedVals.map(_.toTSDef).map("\t" + _).mkString("\n")}
        |
+       |${jsExportedVars.map(_.toTSDef).map("\t" + _).mkString("\n")}
+       |
        |${jsExportedMethods.map(_.toTSDef).map("\t" + _).mkString("\n")}
        |
        |}
-   """.stripMargin
+   """.stripMargin.split("\n").filter(_.nonEmpty).mkString("\n")
+
+  private def thoseExported[T <: WithAnnotations with WithModifierKW](list: List[T]): List[T] =
+    list.filter(_.isPublic).filter(jsExportAll | _.jsExported)
 
 }
