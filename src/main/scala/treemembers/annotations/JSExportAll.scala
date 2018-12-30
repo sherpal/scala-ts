@@ -2,4 +2,6 @@ package treemembers.annotations
 
 import treemembers.Annotation
 
-case object JSExportAll extends Annotation
+import scala.meta.inputs.Position
+
+final case class JSExportAll(position: Position, fileName: String) extends Annotation

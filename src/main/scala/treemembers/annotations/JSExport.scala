@@ -2,6 +2,12 @@ package treemembers.annotations
 
 import treemembers.Annotation
 
-final case class JSExport(name: Option[String]) extends Annotation {
+import scala.meta.inputs.Position
+
+final case class JSExport(
+                           name: Option[String],
+                           position: Position,
+                           fileName: String
+                         ) extends Annotation {
 
 }

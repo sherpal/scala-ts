@@ -4,7 +4,8 @@ import treemembers.annotations.JSExport
 
 import scala.meta._
 
-final class Method(val defn: Defn.Def) extends WithAnnotations with WithModifierKW {
+final class Method(val defn: Defn.Def, val fileName: String)
+  extends Definition with WithAnnotations with WithModifierKW {
 
   val mods: List[Mod] = defn.mods
   val name: Term.Name = defn.name

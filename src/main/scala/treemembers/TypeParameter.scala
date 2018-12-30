@@ -17,7 +17,8 @@ object TypeParameter {
     "Double" -> "number",
     "Float" -> "boolean",
     "String" -> "string",
-    "Unit" -> "void"
+    "Unit" -> "void",
+    "Any" -> "any"
   )
 
   def scalaToTSTypeMapper(scalaType: Type): String = scalaType match {
@@ -28,6 +29,17 @@ object TypeParameter {
       }).mkString("(", ", ", ")") + " => " + scalaToTSTypeMapper(res)
     case Type.Param(_, name, _, _, _, _) =>
       name.value
+    case Type.Apply(tpe, args) =>
+      s"${scalaToTSTypeMapper(tpe)}${args.map(scalaToTSTypeMapper).mkString("<", ", ", ">")}"
+    case Type.Select(qual, name) =>
+      println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      println(qual, name.value)
+      name.value
+    case _ =>
+      println("-----------------------------------------")
+      println(scalaType)
+      println(scalaType.getClass)
+      "Dummy"
   }
 
 }

@@ -1,28 +1,45 @@
 package treemembers
 
-import scala.meta._
+import tester.Main.FileName
 
-trait TreeMember
+import scala.meta._
+import scala.meta.internal.semanticdb.{Range, SymbolOccurrence, TextDocument}
+
+trait TreeMember {
+
+  val fileName: String
+
+  val position: Position
+
+  def positionToRange: Range = Range(position.startLine, position.startColumn, position.endLine, position.endColumn)
+
+  def typeFromSemanticDB(
+                          pos: Position,
+                          occurrenceMap: Map[(FileName, Option[Range]), (SymbolOccurrence, TextDocument)]
+                        ): String = {
+    occurrenceMap((fileName, Some(positionToRange)))._1.symbol
+  }
+
+}
 
 object TreeMember {
 
-  def apply(node: Tree): TreeMember = node match {
+  def apply(node: Tree)(implicit fileName: String): TreeMember = node match {
     case node: Defn.Class =>
-      new Class(node)
+      new Class(node, fileName)
     case node: Defn.Def =>
-      new Method(node)
+      new Method(node, fileName)
     case node: Defn.Val =>
-      new Val(node)
+      new Val(node, fileName)
     case node: Defn.Var =>
-      new Var(node)
+      new Var(node, fileName)
     case Mod.Annot(init) =>
-      Annotation(init)
-    case Lit.String(value) =>
-      new StringLiteral(value)
-    case _ => new Other(node)
+      Annotation(init, fileName)
+    case _ => new Other(node, fileName)
   }
 
-  def parseTree(tree: Tree): List[TreeMember] = tree.collect({ case node => apply(node) })
+  def parseTree(tree: Tree)(implicit fileName: String): List[TreeMember] =
+    tree.collect({ case node => apply(node)(fileName) })
 
   trait Dummy extends TreeMember
 

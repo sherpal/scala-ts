@@ -1,5 +1,9 @@
 package treemembers
 
-import scala.meta.Tree
+import scala.meta._
 
-final class Other(val node: Tree) extends TreeMember.Dummy
+final class Other(val node: Tree, val fileName: String) extends TreeMember.Dummy {
+
+  val position: Position = node.pos
+
+}

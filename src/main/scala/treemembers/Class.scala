@@ -4,7 +4,9 @@ import treemembers.annotations.{JSExportTopLevel, JSExportAll}
 
 import scala.meta._
 
-final class Class(val defn: Defn.Class) extends WithAnnotations {
+final class Class(val defn: Defn.Class, val fileName: String) extends Definition with WithAnnotations {
+
+  implicit val implicitFileName: String = fileName
 
   val mods: List[Mod] = defn.mods
   val name: Name = defn.name
@@ -19,16 +21,24 @@ final class Class(val defn: Defn.Class) extends WithAnnotations {
     case list => s"extends " + list.mkString(", ")
   }
 
+  lazy val typeParameters: List[String] = tparams.map(_.name.value)
+
+  def jsTypeParameters: String =
+    if (typeParameters.isEmpty) ""
+    else typeParameters.mkString("<", ", ", ">")
+
   lazy val constructorParams: List[List[TypedName]] = ctor.paramss.map(_.map(new TypedName(_)))
 
   def jsConstructorParams: String = constructorParams.map(_.map(_.asString).mkString("(", ", ", ")")).mkString
 
   lazy val isJSTopLevelExported: Boolean = annotations.exists(_.isInstanceOf[JSExportTopLevel])
 
-  lazy val jsExportAll: Boolean = annotations.contains(JSExportAll)
+  lazy val jsExportAll: Boolean = annotations.exists(_.isInstanceOf[JSExportAll])
 
-  lazy val jsClassName: String = annotations.find(_.isInstanceOf[JSExportTopLevel])
-    .get.asInstanceOf[JSExportTopLevel].className
+  lazy val jsClassName: String = annotations.find(_.isInstanceOf[JSExportTopLevel]) match {
+    case Some(jsExportTopLevel: JSExportTopLevel) => jsExportTopLevel.className
+    case _ => name.value
+  }
 
   lazy val methods: List[Method] = template.children.map(TreeMember.apply)
     .flatMap({
@@ -58,7 +68,7 @@ final class Class(val defn: Defn.Class) extends WithAnnotations {
 
   def toTSDef: String =
     s"""
-       |$classOrInterface $jsClassName $extendsFrom {
+       |declare $classOrInterface $jsClassName$jsTypeParameters $extendsFrom {
        |
        |${if (isJSTopLevelExported) "\tconstructor" + jsConstructorParams else ""}
        |

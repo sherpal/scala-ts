@@ -4,7 +4,7 @@ import treemembers.annotations.JSExport
 
 import scala.meta._
 
-trait ValOrVar extends WithAnnotations with WithModifierKW {
+trait ValOrVar extends Definition with WithAnnotations with WithModifierKW {
 
   val pats: List[Pat]
   val decltpe: Option[Type]
