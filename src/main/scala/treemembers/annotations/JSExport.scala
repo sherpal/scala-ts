@@ -1,5 +1,6 @@
 package treemembers.annotations
 
+import documentelements.Page
 import treemembers.Annotation
 
 import scala.meta.inputs.Position
@@ -7,7 +8,8 @@ import scala.meta.inputs.Position
 final case class JSExport(
                            name: Option[String],
                            position: Position,
-                           fileName: String
+                           fileName: String,
+                           page: Page
                          ) extends Annotation {
 
 }

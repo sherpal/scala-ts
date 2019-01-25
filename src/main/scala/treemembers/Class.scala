@@ -1,18 +1,27 @@
 package treemembers
 
-import treemembers.annotations.{JSExportTopLevel, JSExportAll}
+import documentelements.Page
+import treemembers.annotations.{JSExportAll, JSExportTopLevel}
 
 import scala.meta._
+import scala.meta.internal.semanticdb.SymbolInformation
 
-final class Class(val defn: Defn.Class, val fileName: String) extends Definition with WithAnnotations {
+final class Class(
+                   val defn: Defn.Class,
+                   val fileName: String,
+                   val page: Page
+                 ) extends Definition with WithAnnotations {
 
   implicit val implicitFileName: String = fileName
+  implicit val implicitPage: Page = page
 
   val mods: List[Mod] = defn.mods
   val name: Name = defn.name
   val tparams: List[Type.Param] = defn.tparams
   val ctor: Ctor.Primary = defn.ctor
   val template: Template = defn.templ
+
+  lazy val symbol: SymbolInformation = page.symbolsMap((fileName, name.toString))
 
   lazy val superClasses: List[Init] = template.inits
 

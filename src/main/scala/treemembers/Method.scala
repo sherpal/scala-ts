@@ -1,11 +1,16 @@
 package treemembers
 
+import documentelements.Page
 import treemembers.annotations.JSExport
 
 import scala.meta._
+import scala.meta.internal.semanticdb.SymbolInformation
 
-final class Method(val defn: Defn.Def, val fileName: String)
+final class Method(val defn: Defn.Def, val fileName: String, val page: Page)
   extends Definition with WithAnnotations with WithModifierKW {
+
+  implicit val implicitFileName: String = fileName
+  implicit val implicitPage: Page = page
 
   val mods: List[Mod] = defn.mods
   val name: Term.Name = defn.name
@@ -13,6 +18,8 @@ final class Method(val defn: Defn.Def, val fileName: String)
   val paramss: List[List[Term.Param]] = defn.paramss
   val decltype: Option[Type] = defn.decltpe
   val body: Term = defn.body
+
+  lazy val symbol: SymbolInformation = page.symbolsMap((fileName, name.toString))
 
   lazy val scalaName: String = name.value
 
@@ -36,6 +43,8 @@ final class Method(val defn: Defn.Def, val fileName: String)
   lazy val emptyParens: Boolean = parameters.isEmpty
 
   lazy val returnType: TypeParameter = new TypeParameter(decltype.get)
+
+  lazy val signature = symbol.signature
 
   // todo: curried methods
   def toTSDef: String =

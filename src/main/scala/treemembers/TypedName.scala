@@ -1,8 +1,12 @@
 package treemembers
 
+import documentelements.Page
+
 import scala.meta._
 
-final class TypedName(param: Term.Param) {
+final class TypedName(param: Term.Param)(implicit val fileName: String, val page: Page) extends TreeMember {
+
+  lazy val position: Position = param.decltpe.get.pos
 
   lazy val name: String = param.name.value
 
